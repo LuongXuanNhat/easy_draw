@@ -47,42 +47,69 @@ const CanvasElementSchema = CollectionSchema(
       name: r'documentId',
       type: IsarType.long,
     ),
-    r'imagePath': PropertySchema(
+    r'fontFamily': PropertySchema(
       id: 6,
+      name: r'fontFamily',
+      type: IsarType.string,
+    ),
+    r'fontSize': PropertySchema(
+      id: 7,
+      name: r'fontSize',
+      type: IsarType.double,
+    ),
+    r'imagePath': PropertySchema(
+      id: 8,
       name: r'imagePath',
       type: IsarType.string,
     ),
+    r'isBold': PropertySchema(id: 9, name: r'isBold', type: IsarType.bool),
     r'points': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'points',
       type: IsarType.objectList,
 
       target: r'IsarPoint',
     ),
+    r'rotationAngle': PropertySchema(
+      id: 11,
+      name: r'rotationAngle',
+      type: IsarType.double,
+    ),
+    r'scale': PropertySchema(id: 12, name: r'scale', type: IsarType.double),
     r'shapeType': PropertySchema(
-      id: 8,
+      id: 13,
       name: r'shapeType',
       type: IsarType.byte,
       enumMap: _CanvasElementshapeTypeEnumValueMap,
     ),
     r'strokeStyle': PropertySchema(
-      id: 9,
+      id: 14,
       name: r'strokeStyle',
       type: IsarType.byte,
       enumMap: _CanvasElementstrokeStyleEnumValueMap,
     ),
     r'strokeWidth': PropertySchema(
-      id: 10,
+      id: 15,
       name: r'strokeWidth',
       type: IsarType.double,
     ),
     r'textContent': PropertySchema(
-      id: 11,
+      id: 16,
       name: r'textContent',
       type: IsarType.string,
     ),
+    r'translationX': PropertySchema(
+      id: 17,
+      name: r'translationX',
+      type: IsarType.double,
+    ),
+    r'translationY': PropertySchema(
+      id: 18,
+      name: r'translationY',
+      type: IsarType.double,
+    ),
     r'type': PropertySchema(
-      id: 12,
+      id: 19,
       name: r'type',
       type: IsarType.byte,
       enumMap: _CanvasElementtypeEnumValueMap,
@@ -124,6 +151,12 @@ int _canvasElementEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  {
+    final value = object.fontFamily;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   {
     final value = object.imagePath;
     if (value != null) {
@@ -168,18 +201,25 @@ void _canvasElementSerialize(
   writer.writeDouble(offsets[3], object.boundingTop);
   writer.writeLong(offsets[4], object.colorValue);
   writer.writeLong(offsets[5], object.documentId);
-  writer.writeString(offsets[6], object.imagePath);
+  writer.writeString(offsets[6], object.fontFamily);
+  writer.writeDouble(offsets[7], object.fontSize);
+  writer.writeString(offsets[8], object.imagePath);
+  writer.writeBool(offsets[9], object.isBold);
   writer.writeObjectList<IsarPoint>(
-    offsets[7],
+    offsets[10],
     allOffsets,
     IsarPointSchema.serialize,
     object.points,
   );
-  writer.writeByte(offsets[8], object.shapeType.index);
-  writer.writeByte(offsets[9], object.strokeStyle.index);
-  writer.writeDouble(offsets[10], object.strokeWidth);
-  writer.writeString(offsets[11], object.textContent);
-  writer.writeByte(offsets[12], object.type.index);
+  writer.writeDouble(offsets[11], object.rotationAngle);
+  writer.writeDouble(offsets[12], object.scale);
+  writer.writeByte(offsets[13], object.shapeType.index);
+  writer.writeByte(offsets[14], object.strokeStyle.index);
+  writer.writeDouble(offsets[15], object.strokeWidth);
+  writer.writeString(offsets[16], object.textContent);
+  writer.writeDouble(offsets[17], object.translationX);
+  writer.writeDouble(offsets[18], object.translationY);
+  writer.writeByte(offsets[19], object.type.index);
 }
 
 CanvasElement _canvasElementDeserialize(
@@ -195,26 +235,33 @@ CanvasElement _canvasElementDeserialize(
   object.boundingTop = reader.readDoubleOrNull(offsets[3]);
   object.colorValue = reader.readLongOrNull(offsets[4]);
   object.documentId = reader.readLongOrNull(offsets[5]);
+  object.fontFamily = reader.readStringOrNull(offsets[6]);
+  object.fontSize = reader.readDoubleOrNull(offsets[7]);
   object.id = id;
-  object.imagePath = reader.readStringOrNull(offsets[6]);
+  object.imagePath = reader.readStringOrNull(offsets[8]);
+  object.isBold = reader.readBoolOrNull(offsets[9]);
   object.points = reader.readObjectList<IsarPoint>(
-    offsets[7],
+    offsets[10],
     IsarPointSchema.deserialize,
     allOffsets,
     IsarPoint(),
   );
+  object.rotationAngle = reader.readDoubleOrNull(offsets[11]);
+  object.scale = reader.readDoubleOrNull(offsets[12]);
   object.shapeType =
-      _CanvasElementshapeTypeValueEnumMap[reader.readByteOrNull(offsets[8])] ??
+      _CanvasElementshapeTypeValueEnumMap[reader.readByteOrNull(offsets[13])] ??
       ShapeType.rectangle;
   object.strokeStyle =
       _CanvasElementstrokeStyleValueEnumMap[reader.readByteOrNull(
-        offsets[9],
+        offsets[14],
       )] ??
       StrokeStyle.solid;
-  object.strokeWidth = reader.readDoubleOrNull(offsets[10]);
-  object.textContent = reader.readStringOrNull(offsets[11]);
+  object.strokeWidth = reader.readDoubleOrNull(offsets[15]);
+  object.textContent = reader.readStringOrNull(offsets[16]);
+  object.translationX = reader.readDoubleOrNull(offsets[17]);
+  object.translationY = reader.readDoubleOrNull(offsets[18]);
   object.type =
-      _CanvasElementtypeValueEnumMap[reader.readByteOrNull(offsets[12])] ??
+      _CanvasElementtypeValueEnumMap[reader.readByteOrNull(offsets[19])] ??
       ElementType.freehand;
   return object;
 }
@@ -241,6 +288,12 @@ P _canvasElementDeserializeProp<P>(
     case 6:
       return (reader.readStringOrNull(offset)) as P;
     case 7:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 8:
+      return (reader.readStringOrNull(offset)) as P;
+    case 9:
+      return (reader.readBoolOrNull(offset)) as P;
+    case 10:
       return (reader.readObjectList<IsarPoint>(
             offset,
             IsarPointSchema.deserialize,
@@ -248,23 +301,31 @@ P _canvasElementDeserializeProp<P>(
             IsarPoint(),
           ))
           as P;
-    case 8:
+    case 11:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 12:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 13:
       return (_CanvasElementshapeTypeValueEnumMap[reader.readByteOrNull(
                 offset,
               )] ??
               ShapeType.rectangle)
           as P;
-    case 9:
+    case 14:
       return (_CanvasElementstrokeStyleValueEnumMap[reader.readByteOrNull(
                 offset,
               )] ??
               StrokeStyle.solid)
           as P;
-    case 10:
+    case 15:
       return (reader.readDoubleOrNull(offset)) as P;
-    case 11:
+    case 16:
       return (reader.readStringOrNull(offset)) as P;
-    case 12:
+    case 17:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 18:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 19:
       return (_CanvasElementtypeValueEnumMap[reader.readByteOrNull(offset)] ??
               ElementType.freehand)
           as P;
@@ -404,6 +465,7 @@ const _CanvasElementtypeEnumValueMap = {
   'text': 5,
   'image': 6,
   'shape': 7,
+  'select': 8,
 };
 const _CanvasElementtypeValueEnumMap = {
   0: ElementType.freehand,
@@ -414,6 +476,7 @@ const _CanvasElementtypeValueEnumMap = {
   5: ElementType.text,
   6: ElementType.image,
   7: ElementType.shape,
+  8: ElementType.select,
 };
 
 Id _canvasElementGetId(CanvasElement object) {
@@ -1167,6 +1230,258 @@ extension CanvasElementQueryFilter
     });
   }
 
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontFamilyIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'fontFamily'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontFamilyIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'fontFamily'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontFamilyEqualTo(String? value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'fontFamily',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontFamilyGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'fontFamily',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontFamilyLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'fontFamily',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontFamilyBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'fontFamily',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontFamilyStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'fontFamily',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontFamilyEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'fontFamily',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontFamilyContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'fontFamily',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontFamilyMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'fontFamily',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontFamilyIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'fontFamily', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontFamilyIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'fontFamily', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontSizeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'fontSize'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontSizeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'fontSize'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontSizeEqualTo(double? value, {double epsilon = Query.epsilon}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'fontSize',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontSizeGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'fontSize',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontSizeLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'fontSize',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fontSizeBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'fontSize',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition> idEqualTo(
     Id value,
   ) {
@@ -1384,6 +1699,33 @@ extension CanvasElementQueryFilter
   }
 
   QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  isBoldIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'isBold'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  isBoldIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'isBold'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  isBoldEqualTo(bool? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'isBold', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
   pointsIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1450,6 +1792,192 @@ extension CanvasElementQueryFilter
         includeLower,
         upper,
         includeUpper,
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  rotationAngleIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'rotationAngle'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  rotationAngleIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'rotationAngle'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  rotationAngleEqualTo(double? value, {double epsilon = Query.epsilon}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'rotationAngle',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  rotationAngleGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'rotationAngle',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  rotationAngleLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'rotationAngle',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  rotationAngleBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'rotationAngle',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  scaleIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'scale'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  scaleIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'scale'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  scaleEqualTo(double? value, {double epsilon = Query.epsilon}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'scale',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  scaleGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'scale',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  scaleLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'scale',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  scaleBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'scale',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+
+          epsilon: epsilon,
+        ),
       );
     });
   }
@@ -1816,6 +2344,192 @@ extension CanvasElementQueryFilter
     });
   }
 
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  translationXIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'translationX'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  translationXIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'translationX'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  translationXEqualTo(double? value, {double epsilon = Query.epsilon}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'translationX',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  translationXGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'translationX',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  translationXLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'translationX',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  translationXBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'translationX',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  translationYIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'translationY'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  translationYIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'translationY'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  translationYEqualTo(double? value, {double epsilon = Query.epsilon}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'translationY',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  translationYGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'translationY',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  translationYLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'translationY',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  translationYBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'translationY',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition> typeEqualTo(
     ElementType value,
   ) {
@@ -1968,6 +2682,32 @@ extension CanvasElementQuerySortBy
     });
   }
 
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> sortByFontFamily() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fontFamily', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  sortByFontFamilyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fontFamily', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> sortByFontSize() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fontSize', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  sortByFontSizeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fontSize', Sort.desc);
+    });
+  }
+
   QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> sortByImagePath() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'imagePath', Sort.asc);
@@ -1978,6 +2718,44 @@ extension CanvasElementQuerySortBy
   sortByImagePathDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'imagePath', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> sortByIsBold() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isBold', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> sortByIsBoldDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isBold', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  sortByRotationAngle() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'rotationAngle', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  sortByRotationAngleDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'rotationAngle', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> sortByScale() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'scale', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> sortByScaleDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'scale', Sort.desc);
     });
   }
 
@@ -2030,6 +2808,34 @@ extension CanvasElementQuerySortBy
   sortByTextContentDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'textContent', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  sortByTranslationX() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'translationX', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  sortByTranslationXDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'translationX', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  sortByTranslationY() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'translationY', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  sortByTranslationYDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'translationY', Sort.desc);
     });
   }
 
@@ -2129,6 +2935,32 @@ extension CanvasElementQuerySortThenBy
     });
   }
 
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> thenByFontFamily() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fontFamily', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  thenByFontFamilyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fontFamily', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> thenByFontSize() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fontSize', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  thenByFontSizeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fontSize', Sort.desc);
+    });
+  }
+
   QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -2151,6 +2983,44 @@ extension CanvasElementQuerySortThenBy
   thenByImagePathDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'imagePath', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> thenByIsBold() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isBold', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> thenByIsBoldDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isBold', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  thenByRotationAngle() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'rotationAngle', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  thenByRotationAngleDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'rotationAngle', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> thenByScale() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'scale', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> thenByScaleDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'scale', Sort.desc);
     });
   }
 
@@ -2203,6 +3073,34 @@ extension CanvasElementQuerySortThenBy
   thenByTextContentDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'textContent', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  thenByTranslationX() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'translationX', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  thenByTranslationXDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'translationX', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  thenByTranslationY() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'translationY', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  thenByTranslationYDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'translationY', Sort.desc);
     });
   }
 
@@ -2261,11 +3159,44 @@ extension CanvasElementQueryWhereDistinct
     });
   }
 
+  QueryBuilder<CanvasElement, CanvasElement, QDistinct> distinctByFontFamily({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'fontFamily', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QDistinct> distinctByFontSize() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'fontSize');
+    });
+  }
+
   QueryBuilder<CanvasElement, CanvasElement, QDistinct> distinctByImagePath({
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'imagePath', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QDistinct> distinctByIsBold() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isBold');
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QDistinct>
+  distinctByRotationAngle() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'rotationAngle');
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QDistinct> distinctByScale() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'scale');
     });
   }
 
@@ -2294,6 +3225,20 @@ extension CanvasElementQueryWhereDistinct
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'textContent', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QDistinct>
+  distinctByTranslationX() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'translationX');
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QDistinct>
+  distinctByTranslationY() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'translationY');
     });
   }
 
@@ -2351,9 +3296,27 @@ extension CanvasElementQueryProperty
     });
   }
 
+  QueryBuilder<CanvasElement, String?, QQueryOperations> fontFamilyProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'fontFamily');
+    });
+  }
+
+  QueryBuilder<CanvasElement, double?, QQueryOperations> fontSizeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'fontSize');
+    });
+  }
+
   QueryBuilder<CanvasElement, String?, QQueryOperations> imagePathProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'imagePath');
+    });
+  }
+
+  QueryBuilder<CanvasElement, bool?, QQueryOperations> isBoldProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isBold');
     });
   }
 
@@ -2361,6 +3324,19 @@ extension CanvasElementQueryProperty
   pointsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'points');
+    });
+  }
+
+  QueryBuilder<CanvasElement, double?, QQueryOperations>
+  rotationAngleProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'rotationAngle');
+    });
+  }
+
+  QueryBuilder<CanvasElement, double?, QQueryOperations> scaleProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'scale');
     });
   }
 
@@ -2386,6 +3362,20 @@ extension CanvasElementQueryProperty
   QueryBuilder<CanvasElement, String?, QQueryOperations> textContentProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'textContent');
+    });
+  }
+
+  QueryBuilder<CanvasElement, double?, QQueryOperations>
+  translationXProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'translationX');
+    });
+  }
+
+  QueryBuilder<CanvasElement, double?, QQueryOperations>
+  translationYProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'translationY');
     });
   }
 

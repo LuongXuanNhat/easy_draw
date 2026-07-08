@@ -50,6 +50,22 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
       emit(state.copyWith(elements: elements, redoStack: redoStack));
     });
 
+    on<ElementUpdated>((event, emit) {
+      final updatedElements = List<CanvasElement>.from(state.elements);
+      if (event.index >= 0 && event.index < updatedElements.length) {
+        updatedElements[event.index] = event.updatedElement;
+        emit(state.copyWith(elements: updatedElements, redoStack: []));
+      }
+    });
+
+    on<ElementDeleted>((event, emit) {
+      final updatedElements = List<CanvasElement>.from(state.elements);
+      if (event.index >= 0 && event.index < updatedElements.length) {
+        updatedElements.removeAt(event.index);
+        emit(state.copyWith(elements: updatedElements, redoStack: []));
+      }
+    });
+
     on<CanvasCleared>((event, emit) {
       // Lưu lại snapshot hiện tại vào history nếu muốn Undo lệnh Clear
       emit(state.copyWith(elements: [], redoStack: []));

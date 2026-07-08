@@ -45,3 +45,11 @@ class UndoRequested extends CanvasEvent {}
 class RedoRequested extends CanvasEvent {}
 
 class CanvasCleared extends CanvasEvent {}
+
+class ElementDeleted extends CanvasEvent {
+  final int index;
+  const ElementDeleted(this.index);
+
+  @override
+  List<Object> get props => [index];
+}

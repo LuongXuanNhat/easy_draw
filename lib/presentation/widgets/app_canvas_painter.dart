@@ -5,13 +5,145 @@ import '../../data/mappers/canvas_mapper.dart';
 import 'dart:math' as math;
 
 // --- LỚP 1: VẼ LỊCH SỬ (CHỈ VẼ LẠI KHI CÓ NÉT MỚI HOÀN THÀNH) ---
+Rect getElementBoundingBox(CanvasElement el) {
+  if (el.type == ElementType.freehand && el.points != null && el.points!.isNotEmpty) {
+    double minX = el.points!.first.x ?? 0.0;
+    double maxX = el.points!.first.x ?? 0.0;
+    double minY = el.points!.first.y ?? 0.0;
+    double maxY = el.points!.first.y ?? 0.0;
+    for (var p in el.points!) {
+      final px = p.x ?? 0.0;
+      final py = p.y ?? 0.0;
+      if (px < minX) minX = px;
+      if (px > maxX) maxX = px;
+      if (py < minY) minY = py;
+      if (py > maxY) maxY = py;
+    }
+    return Rect.fromLTRB(minX, minY, maxX, maxY);
+  } else if (el.type == ElementType.text) {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: el.textContent ?? '',
+        style: TextStyle(
+          fontSize: el.fontSize ?? 20.0,
+          fontFamily: el.fontFamily ?? 'Roboto',
+          fontWeight: (el.isBold ?? false) ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    return Rect.fromLTWH(
+      el.boundingLeft ?? 0.0,
+      el.boundingTop ?? 0.0,
+      textPainter.width,
+      textPainter.height,
+    );
+  } else {
+    return Rect.fromLTRB(
+      el.boundingLeft ?? 0.0,
+      el.boundingTop ?? 0.0,
+      el.boundingRight ?? 0.0,
+      el.boundingBottom ?? 0.0,
+    );
+  }
+}
+
+void _applyTransformations(Canvas canvas, CanvasElement el) {
+  final rect = getElementBoundingBox(el);
+  final cx = rect.center.dx;
+  final cy = rect.center.dy;
+
+  final tx = el.translationX ?? 0.0;
+  final ty = el.translationY ?? 0.0;
+  final rot = el.rotationAngle ?? 0.0;
+  final sc = el.scale ?? 1.0;
+
+  if (tx != 0.0 || ty != 0.0) {
+    canvas.translate(tx, ty);
+  }
+  if (rot != 0.0 || sc != 1.0) {
+    canvas.translate(cx, cy);
+    if (rot != 0.0) canvas.rotate(rot);
+    if (sc != 1.0) canvas.scale(sc);
+    canvas.translate(-cx, -cy);
+  }
+}
+
+void _paintTextHelper(
+  Canvas canvas,
+  String text,
+  Offset position,
+  Color color,
+  double fontSize,
+  String fontFamily,
+  bool isBold,
+) {
+  final textPainter = TextPainter(
+    text: TextSpan(
+      text: text,
+      style: TextStyle(
+        color: color,
+        fontSize: fontSize,
+        fontFamily: fontFamily,
+        fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+      ),
+    ),
+    textDirection: TextDirection.ltr,
+  );
+  textPainter.layout();
+  textPainter.paint(canvas, position);
+}
+
+void _paintIndexLabel(Canvas canvas, int index, Offset position) {
+  final circlePaint = Paint()
+    ..color = Colors.blue.withOpacity(0.9)
+    ..style = PaintingStyle.fill;
+
+  final borderPaint = Paint()
+    ..color = Colors.white
+    ..strokeWidth = 1.0
+    ..style = PaintingStyle.stroke;
+
+  canvas.drawCircle(position, 10.0, circlePaint);
+  canvas.drawCircle(position, 10.0, borderPaint);
+
+  final textPainter = TextPainter(
+    text: TextSpan(
+      text: '$index',
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 10.0,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    textDirection: TextDirection.ltr,
+  );
+  textPainter.layout();
+  final textPos = position - Offset(textPainter.width / 2, textPainter.height / 2);
+  textPainter.paint(canvas, textPos);
+}
+
 class HistoryCanvasPainter extends CustomPainter {
   final List<CanvasElement> elements;
-  HistoryCanvasPainter({required this.elements});
+  final CanvasElement? selectedElement;
+  final bool isSelectMode;
+
+  HistoryCanvasPainter({
+    required this.elements,
+    this.selectedElement,
+    this.isSelectMode = false,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (var el in elements) {
+    for (int i = 0; i < elements.length; i++) {
+      final el = elements[i];
+      if (el == selectedElement) continue; // Skip to paint on ActiveCanvasPainter layer instead
+
+      canvas.save();
+      _applyTransformations(canvas, el);
+
       if (el.type == ElementType.freehand) {
         final stroke = el.toDrawStroke();
         if (stroke != null) {
@@ -26,18 +158,39 @@ class HistoryCanvasPainter extends CustomPainter {
           Color(el.colorValue ?? 0xFF000000),
           el.strokeWidth ?? 3.0,
         );
+      } else if (el.type == ElementType.text) {
+        _paintTextHelper(
+          canvas,
+          el.textContent ?? '',
+          Offset(el.boundingLeft ?? 0, el.boundingTop ?? 0),
+          Color(el.colorValue ?? 0xFF000000),
+          el.fontSize ?? 20.0,
+          el.fontFamily ?? 'Roboto',
+          el.isBold ?? false,
+        );
+      }
+
+      canvas.restore();
+
+      // Vẽ nhãn thứ tự index layout cho object
+      if (isSelectMode) {
+        final rect = getElementBoundingBox(el);
+        final tx = el.translationX ?? 0.0;
+        final ty = el.translationY ?? 0.0;
+        final labelPos = rect.topLeft + Offset(tx, ty);
+        _paintIndexLabel(canvas, i + 1, labelPos);
       }
     }
   }
 
   @override
   bool shouldRepaint(covariant HistoryCanvasPainter oldDelegate) {
-    return oldDelegate.elements !=
-        elements; // Chỉ vẽ lại khi data lịch sử thay đổi
+    return oldDelegate.elements != elements ||
+        oldDelegate.selectedElement != selectedElement ||
+        oldDelegate.isSelectMode != isSelectMode;
   }
 }
 
-// --- LỚP 2: VẼ THỜI GIAN THỰC (VẼ LIÊN TỤC 60FPS) ---
 class ActiveCanvasPainter extends CustomPainter {
   final DrawStroke? activeStroke;
   final Offset? shapeStart;
@@ -45,6 +198,9 @@ class ActiveCanvasPainter extends CustomPainter {
   final ShapeType activeShapeType;
   final Color currentColor;
   final double currentStrokeWidth;
+  final CanvasElement? selectedElement;
+  final int selectedIndex;
+  final bool isSelectMode;
 
   ActiveCanvasPainter({
     this.activeStroke,
@@ -53,6 +209,9 @@ class ActiveCanvasPainter extends CustomPainter {
     required this.activeShapeType,
     required this.currentColor,
     required this.currentStrokeWidth,
+    this.selectedElement,
+    this.selectedIndex = -1,
+    this.isSelectMode = false,
   });
 
   @override
@@ -70,10 +229,89 @@ class ActiveCanvasPainter extends CustomPainter {
         currentStrokeWidth,
       );
     }
+    if (selectedElement != null) {
+      // 1. Vẽ bản thân đối tượng đang được chỉnh sửa
+      canvas.save();
+      _applyTransformations(canvas, selectedElement!);
+
+      if (selectedElement!.type == ElementType.freehand) {
+        final stroke = selectedElement!.toDrawStroke();
+        if (stroke != null) {
+          DrawPainter(strokes: [stroke]).paint(canvas, size);
+        }
+      } else if (selectedElement!.type == ElementType.shape) {
+        _paintShapeHelper(
+          canvas,
+          selectedElement!.shapeType,
+          Offset(selectedElement!.boundingLeft ?? 0, selectedElement!.boundingTop ?? 0),
+          Offset(selectedElement!.boundingRight ?? 0, selectedElement!.boundingBottom ?? 0),
+          Color(selectedElement!.colorValue ?? 0xFF000000),
+          selectedElement!.strokeWidth ?? 3.0,
+        );
+      } else if (selectedElement!.type == ElementType.text) {
+        _paintTextHelper(
+          canvas,
+          selectedElement!.textContent ?? '',
+          Offset(selectedElement!.boundingLeft ?? 0, selectedElement!.boundingTop ?? 0),
+          Color(selectedElement!.colorValue ?? 0xFF000000),
+          selectedElement!.fontSize ?? 20.0,
+          selectedElement!.fontFamily ?? 'Roboto',
+          selectedElement!.isBold ?? false,
+        );
+      }
+      canvas.restore();
+
+      // 2. Vẽ viền selector và tay cầm
+      final rect = getElementBoundingBox(selectedElement!);
+      final tx = selectedElement!.translationX ?? 0.0;
+      final ty = selectedElement!.translationY ?? 0.0;
+      final rotated = selectedElement!.rotationAngle ?? 0.0;
+      final scaled = selectedElement!.scale ?? 1.0;
+
+      canvas.save();
+      final cx = rect.center.dx;
+      final cy = rect.center.dy;
+      canvas.translate(cx + tx, cy + ty);
+      if (rotated != 0.0) canvas.rotate(rotated);
+      if (scaled != 1.0) canvas.scale(scaled);
+      canvas.translate(-cx, -cy);
+
+      final selectionPaint = Paint()
+        ..color = Colors.blue
+        ..strokeWidth = 1.5
+        ..style = PaintingStyle.stroke;
+
+      final inflated = rect.inflate(4.0);
+      canvas.drawRect(inflated, selectionPaint);
+
+      final handlePaint = Paint()
+        ..color = Colors.blue
+        ..style = PaintingStyle.fill;
+
+      // 4 corners
+      canvas.drawCircle(inflated.topLeft, 6.0, handlePaint);
+      canvas.drawCircle(inflated.topRight, 6.0, handlePaint);
+      canvas.drawCircle(inflated.bottomLeft, 6.0, handlePaint);
+      canvas.drawCircle(inflated.bottomRight, 6.0, handlePaint);
+
+      // Rotation handle (green dot at top-center - 20px)
+      final rotLineStart = Offset(inflated.center.dx, inflated.top);
+      final rotLineEnd = Offset(inflated.center.dx, inflated.top - 20.0);
+      canvas.drawLine(rotLineStart, rotLineEnd, selectionPaint);
+      canvas.drawCircle(rotLineEnd, 6.0, Paint()..color = Colors.green);
+
+      canvas.restore();
+
+      // 3. Vẽ nhãn thứ tự index của vật thể đang được chọn
+      if (isSelectMode && selectedIndex >= 0) {
+        final labelPos = rect.topLeft + Offset(tx, ty);
+        _paintIndexLabel(canvas, selectedIndex + 1, labelPos);
+      }
+    }
   }
 
   @override
-  bool shouldRepaint(covariant ActiveCanvasPainter oldDelegate) => true; // Luôn vẽ lại khi ngón tay di chuyển
+  bool shouldRepaint(covariant ActiveCanvasPainter oldDelegate) => true;
 }
 
 // --- HÀM HELPER VẼ HÌNH (Dùng chung cho cả 2 lớp) ---

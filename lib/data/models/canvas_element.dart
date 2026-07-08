@@ -11,6 +11,7 @@ enum ElementType {
   text,
   image,
   shape,
+  select,
 }
 
 /// Định nghĩa kiểu đường viền
@@ -129,4 +130,15 @@ class CanvasElement {
   double? boundingTop;
   double? boundingRight;
   double? boundingBottom;
+
+  // Thuộc tính di chuyển, xoay, phóng to
+  double? translationX;
+  double? translationY;
+  double? rotationAngle;
+  double? scale;
+
+  // Thuộc tính bổ sung của Text
+  double? fontSize;
+  String? fontFamily;
+  bool? isBold;
 }
