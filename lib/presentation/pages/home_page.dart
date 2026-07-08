@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/canvas/canvas_bloc.dart';
 import '../../data/datasources/isar_datasource.dart';
 import '../../data/models/drawing_document.dart';
 import '../../core/di/injection_container.dart';
@@ -48,7 +50,12 @@ class _HomePageState extends State<HomePage> {
               tooltip: 'Vẽ tiếp',
               onPressed: () => Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const DrawingPage()),
+                MaterialPageRoute(
+                  builder: (context) => BlocProvider<CanvasBloc>(
+                    create: (_) => sl<CanvasBloc>(),
+                    child: const DrawingPage(),
+                  ),
+                ),
               ),
             ),
           ],
@@ -65,7 +72,12 @@ class _HomePageState extends State<HomePage> {
             // Mở trang vẽ mới
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const DrawingPage()),
+              MaterialPageRoute(
+                builder: (context) => BlocProvider<CanvasBloc>(
+                  create: (_) => sl<CanvasBloc>(),
+                  child: const DrawingPage(),
+                ),
+              ),
             );
           },
         ),
@@ -102,7 +114,12 @@ class _HomePageState extends State<HomePage> {
                 // TODO: Bắn Event Load Document vào BLoC trước khi sang DrawingPage
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const DrawingPage()),
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider<CanvasBloc>(
+                      create: (_) => sl<CanvasBloc>(),
+                      child: const DrawingPage(),
+                    ),
+                  ),
                 );
               },
             );

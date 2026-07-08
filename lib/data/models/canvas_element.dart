@@ -17,26 +17,71 @@ enum ElementType {
 enum StrokeStyle { solid, dashed, dotted }
 
 enum ShapeType {
-  line,
+  // Basic Geometrical
   rectangle,
+  roundedRectangle,
+  square,
   ellipse,
+  circle,
   triangle,
   rightTriangle,
   diamond,
+  parallelogram,
+  trapezoid,
   pentagon,
   hexagon,
-  heptagon,
   octagon,
-  star5,
-  star6,
+  decagon,
+  cross,
+  cube,
+  frame,
+  donut,
+  arc,
+  chord,
+
+  // Lines & Curves
+  line,
+  arrowLine,
+  curve,
+  freeform,
+  scribble,
+
+  // Arrows
   arrowRight,
   arrowLeft,
   arrowUp,
   arrowDown,
-  cross,
+  arrowLeftRight,
+  arrowFourWay,
+  arrowUTurn,
+  arrowCurved,
+  chevron,
+  arrowPentagon,
+
+  // Callouts
+  calloutRectangular,
+  calloutRounded,
+  calloutOval,
+  calloutCloud,
+  calloutLine,
+
+  // Stars
+  star4,
+  star5,
+  star6,
+
+  // Others
   heart,
+  smileyFace,
+  moon,
+  sun,
   cloud,
-  cylinder,
+  lightning,
+  flower,
+  foldedCorner,
+  noSymbol,
+  circleWithPlus,
+
   none, // 'none' dành cho các type không phải hình học
 }
 

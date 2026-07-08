@@ -28,6 +28,7 @@ class _DrawingPageState extends State<DrawingPage> {
   final TransformationController _transformController =
       TransformationController();
   final LayerLink _shapeMenuLink = LayerLink();
+  final ScrollController _shapeMenuScrollController = ScrollController();
   OverlayEntry? _overlayEntry;
   bool _isMenuOpen = false;
 
@@ -40,6 +41,13 @@ class _DrawingPageState extends State<DrawingPage> {
 
   void _resetCenter() {
     _transformController.value = Matrix4.identity();
+  }
+
+  @override
+  void dispose() {
+    _shapeMenuScrollController.dispose();
+    _transformController.dispose();
+    super.dispose();
   }
 
   void _toggleShapeMenu() {
@@ -60,6 +68,157 @@ class _DrawingPageState extends State<DrawingPage> {
     _overlayEntry = _createOverlayEntry();
     Overlay.of(context).insert(_overlayEntry!);
     setState(() => _isMenuOpen = true);
+  }
+
+  static const List<ShapeType> geometryShapes = [
+    ShapeType.rectangle,
+    ShapeType.roundedRectangle,
+    ShapeType.square,
+    ShapeType.ellipse,
+    ShapeType.circle,
+    ShapeType.triangle,
+    ShapeType.rightTriangle,
+    ShapeType.diamond,
+    ShapeType.parallelogram,
+    ShapeType.trapezoid,
+    ShapeType.pentagon,
+    ShapeType.hexagon,
+    ShapeType.octagon,
+    ShapeType.decagon,
+    ShapeType.cross,
+    ShapeType.cube,
+    ShapeType.frame,
+    ShapeType.donut,
+    ShapeType.arc,
+    ShapeType.chord,
+  ];
+
+  static const List<ShapeType> lineShapes = [
+    ShapeType.line,
+    ShapeType.arrowLine,
+    ShapeType.curve,
+    ShapeType.freeform,
+    ShapeType.scribble,
+  ];
+
+  static const List<ShapeType> arrowShapes = [
+    ShapeType.arrowRight,
+    ShapeType.arrowLeft,
+    ShapeType.arrowUp,
+    ShapeType.arrowDown,
+    ShapeType.arrowLeftRight,
+    ShapeType.arrowFourWay,
+    ShapeType.arrowUTurn,
+    ShapeType.arrowCurved,
+    ShapeType.chevron,
+    ShapeType.arrowPentagon,
+  ];
+
+  static const List<ShapeType> calloutShapes = [
+    ShapeType.calloutRectangular,
+    ShapeType.calloutRounded,
+    ShapeType.calloutOval,
+    ShapeType.calloutCloud,
+    ShapeType.calloutLine,
+  ];
+
+  static const List<ShapeType> starShapes = [
+    ShapeType.star4,
+    ShapeType.star5,
+    ShapeType.star6,
+  ];
+
+  static const List<ShapeType> otherShapes = [
+    ShapeType.heart,
+    ShapeType.smileyFace,
+    ShapeType.moon,
+    ShapeType.sun,
+    ShapeType.cloud,
+    ShapeType.lightning,
+    ShapeType.flower,
+    ShapeType.foldedCorner,
+    ShapeType.noSymbol,
+    ShapeType.circleWithPlus,
+  ];
+
+  Widget _buildShapeGrid(
+    List<ShapeType> shapes,
+    CanvasBloc canvasBloc,
+    CanvasState state,
+  ) {
+    const double spacing = 8.0;
+    const int crossAxisCount = 5;
+    // (280 - 24 - (4 * 8)) / 5 = 44.8 width per item to fit exactly 5 items per row
+    const double itemWidth = (280 - 24 - ((crossAxisCount - 1) * spacing)) / crossAxisCount;
+
+    return Wrap(
+      spacing: spacing,
+      runSpacing: spacing,
+      children: shapes.map((shape) {
+        final isActive =
+            state.currentTool == ElementType.shape &&
+            state.currentShapeType == shape;
+
+        return InkWell(
+          onTap: () {
+            canvasBloc.add(ShapeTypeChanged(shape));
+            _closeShapeMenu();
+          },
+          child: Container(
+            width: itemWidth,
+            height: itemWidth,
+            decoration: BoxDecoration(
+              color:
+                  isActive ? Colors.blue.withOpacity(0.15) : Colors.transparent,
+              border: Border.all(
+                color: isActive ? Colors.blue : Colors.grey.shade300,
+                width: isActive ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: Icon(
+                shape.icon,
+                color: isActive ? Colors.blue : Colors.black87,
+                size: 20,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildGroupSection(
+    String title,
+    List<ShapeType> shapes,
+    CanvasBloc canvasBloc,
+    CanvasState state,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 4.0, bottom: 2.0, left: 2.0),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ),
+        _buildShapeGrid(shapes, canvasBloc, state),
+      ],
+    );
+  }
+
+  Widget _buildGroupDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Divider(color: Colors.grey.shade200, height: 1, thickness: 1),
+    );
   }
 
   OverlayEntry _createOverlayEntry() {
@@ -84,64 +243,69 @@ class _DrawingPageState extends State<DrawingPage> {
               child: Material(
                 elevation: 8,
                 borderRadius: BorderRadius.circular(16),
-                // DÙNG BLOCBUILDER ĐỂ CẬP NHẬT TRẠNG THÁI ACTIVE TRONG MENU
                 child: BlocBuilder<CanvasBloc, CanvasState>(
                   builder: (context, state) {
                     return Container(
                       width: 280,
-                      padding: const EdgeInsets.all(12),
+                      height: 380,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 5,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8,
+                      child: Scrollbar(
+                        controller: _shapeMenuScrollController,
+                        thumbVisibility: true,
+                        child: ListView(
+                          controller: _shapeMenuScrollController,
+                          padding: const EdgeInsets.only(right: 8.0, top: 4.0),
+                          children: [
+                            _buildGroupSection(
+                              'Hình học cơ bản',
+                              geometryShapes,
+                              canvasBloc,
+                              state,
                             ),
-                        itemCount: ShapeType.values.length - 1,
-                        itemBuilder: (context, index) {
-                          final shape = ShapeType.values[index];
-                          // Kiểm tra xem hình này có đang được active không
-                          final isActive =
-                              state.currentTool == ElementType.shape &&
-                              state.currentShapeType == shape;
-
-                          return InkWell(
-                            onTap: () {
-                              canvasBloc.add(ShapeTypeChanged(shape));
-                              _closeShapeMenu();
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                // Highlight màu nền và viền nếu đang Active
-                                color: isActive
-                                    ? Colors.blue.withOpacity(0.15)
-                                    : Colors.transparent,
-                                border: Border.all(
-                                  color: isActive
-                                      ? Colors.blue
-                                      : Colors.grey.shade300,
-                                  width: isActive ? 2 : 1,
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  shape.icon, // Sử dụng extension của bạn
-                                  color: isActive
-                                      ? Colors.blue
-                                      : Colors.black87,
-                                  size: 24,
-                                ),
-                              ),
+                            _buildGroupDivider(),
+                            _buildGroupSection(
+                              'Đường & Nét vẽ',
+                              lineShapes,
+                              canvasBloc,
+                              state,
                             ),
-                          );
-                        },
+                            _buildGroupDivider(),
+                            _buildGroupSection(
+                              'Mũi tên khối',
+                              arrowShapes,
+                              canvasBloc,
+                              state,
+                            ),
+                            _buildGroupDivider(),
+                            _buildGroupSection(
+                              'Hộp thoại (Callouts)',
+                              calloutShapes,
+                              canvasBloc,
+                              state,
+                            ),
+                            _buildGroupDivider(),
+                            _buildGroupSection(
+                              'Ngôi sao',
+                              starShapes,
+                              canvasBloc,
+                              state,
+                            ),
+                            _buildGroupDivider(),
+                            _buildGroupSection(
+                              'Hình khác',
+                              otherShapes,
+                              canvasBloc,
+                              state,
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
