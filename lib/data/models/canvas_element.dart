@@ -114,6 +114,7 @@ class CanvasElement {
 
   // Thuộc tính hiển thị
   int? colorValue; // Isar không lưu trực tiếp class Color của Flutter
+  int? fillColorValue; // Màu tô nền cho hình học (Shape fill)
   double? strokeWidth;
 
   @enumerated
@@ -141,4 +142,34 @@ class CanvasElement {
   double? fontSize;
   String? fontFamily;
   bool? isBold;
+
+  CanvasElement clone() {
+    return CanvasElement()
+      ..id = id
+      ..documentId = documentId
+      ..type = type
+      ..shapeType = shapeType
+      ..points = points?.map((p) => IsarPoint()
+        ..x = p.x
+        ..y = p.y
+        ..pressure = p.pressure
+      ).toList()
+      ..colorValue = colorValue
+      ..fillColorValue = fillColorValue
+      ..strokeWidth = strokeWidth
+      ..strokeStyle = strokeStyle
+      ..textContent = textContent
+      ..imagePath = imagePath
+      ..boundingLeft = boundingLeft
+      ..boundingTop = boundingTop
+      ..boundingRight = boundingRight
+      ..boundingBottom = boundingBottom
+      ..translationX = translationX
+      ..translationY = translationY
+      ..rotationAngle = rotationAngle
+      ..scale = scale
+      ..fontSize = fontSize
+      ..fontFamily = fontFamily
+      ..isBold = isBold;
+  }
 }

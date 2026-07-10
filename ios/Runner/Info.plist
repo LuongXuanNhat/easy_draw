@@ -66,5 +66,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Ứng dụng cần quyền ghi vào thư viện ảnh để lưu ảnh chụp màn hình bản vẽ của bạn.</string>
 </dict>
 </plist>

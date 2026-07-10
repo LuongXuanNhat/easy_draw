@@ -111,13 +111,12 @@ class _HomePageState extends State<HomePage> {
                 'Cập nhật: ${DateFormat('dd/MM/yyyy HH:mm').format(doc.updatedAt ?? DateTime.now())}',
               ),
               onTap: () {
-                // TODO: Bắn Event Load Document vào BLoC trước khi sang DrawingPage
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => BlocProvider<CanvasBloc>(
                       create: (_) => sl<CanvasBloc>(),
-                      child: const DrawingPage(),
+                      child: DrawingPage(documentId: doc.id),
                     ),
                   ),
                 );

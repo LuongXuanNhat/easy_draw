@@ -47,69 +47,74 @@ const CanvasElementSchema = CollectionSchema(
       name: r'documentId',
       type: IsarType.long,
     ),
-    r'fontFamily': PropertySchema(
+    r'fillColorValue': PropertySchema(
       id: 6,
+      name: r'fillColorValue',
+      type: IsarType.long,
+    ),
+    r'fontFamily': PropertySchema(
+      id: 7,
       name: r'fontFamily',
       type: IsarType.string,
     ),
     r'fontSize': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'fontSize',
       type: IsarType.double,
     ),
     r'imagePath': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'imagePath',
       type: IsarType.string,
     ),
-    r'isBold': PropertySchema(id: 9, name: r'isBold', type: IsarType.bool),
+    r'isBold': PropertySchema(id: 10, name: r'isBold', type: IsarType.bool),
     r'points': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'points',
       type: IsarType.objectList,
 
       target: r'IsarPoint',
     ),
     r'rotationAngle': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'rotationAngle',
       type: IsarType.double,
     ),
-    r'scale': PropertySchema(id: 12, name: r'scale', type: IsarType.double),
+    r'scale': PropertySchema(id: 13, name: r'scale', type: IsarType.double),
     r'shapeType': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'shapeType',
       type: IsarType.byte,
       enumMap: _CanvasElementshapeTypeEnumValueMap,
     ),
     r'strokeStyle': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'strokeStyle',
       type: IsarType.byte,
       enumMap: _CanvasElementstrokeStyleEnumValueMap,
     ),
     r'strokeWidth': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'strokeWidth',
       type: IsarType.double,
     ),
     r'textContent': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'textContent',
       type: IsarType.string,
     ),
     r'translationX': PropertySchema(
-      id: 17,
+      id: 18,
       name: r'translationX',
       type: IsarType.double,
     ),
     r'translationY': PropertySchema(
-      id: 18,
+      id: 19,
       name: r'translationY',
       type: IsarType.double,
     ),
     r'type': PropertySchema(
-      id: 19,
+      id: 20,
       name: r'type',
       type: IsarType.byte,
       enumMap: _CanvasElementtypeEnumValueMap,
@@ -201,25 +206,26 @@ void _canvasElementSerialize(
   writer.writeDouble(offsets[3], object.boundingTop);
   writer.writeLong(offsets[4], object.colorValue);
   writer.writeLong(offsets[5], object.documentId);
-  writer.writeString(offsets[6], object.fontFamily);
-  writer.writeDouble(offsets[7], object.fontSize);
-  writer.writeString(offsets[8], object.imagePath);
-  writer.writeBool(offsets[9], object.isBold);
+  writer.writeLong(offsets[6], object.fillColorValue);
+  writer.writeString(offsets[7], object.fontFamily);
+  writer.writeDouble(offsets[8], object.fontSize);
+  writer.writeString(offsets[9], object.imagePath);
+  writer.writeBool(offsets[10], object.isBold);
   writer.writeObjectList<IsarPoint>(
-    offsets[10],
+    offsets[11],
     allOffsets,
     IsarPointSchema.serialize,
     object.points,
   );
-  writer.writeDouble(offsets[11], object.rotationAngle);
-  writer.writeDouble(offsets[12], object.scale);
-  writer.writeByte(offsets[13], object.shapeType.index);
-  writer.writeByte(offsets[14], object.strokeStyle.index);
-  writer.writeDouble(offsets[15], object.strokeWidth);
-  writer.writeString(offsets[16], object.textContent);
-  writer.writeDouble(offsets[17], object.translationX);
-  writer.writeDouble(offsets[18], object.translationY);
-  writer.writeByte(offsets[19], object.type.index);
+  writer.writeDouble(offsets[12], object.rotationAngle);
+  writer.writeDouble(offsets[13], object.scale);
+  writer.writeByte(offsets[14], object.shapeType.index);
+  writer.writeByte(offsets[15], object.strokeStyle.index);
+  writer.writeDouble(offsets[16], object.strokeWidth);
+  writer.writeString(offsets[17], object.textContent);
+  writer.writeDouble(offsets[18], object.translationX);
+  writer.writeDouble(offsets[19], object.translationY);
+  writer.writeByte(offsets[20], object.type.index);
 }
 
 CanvasElement _canvasElementDeserialize(
@@ -235,33 +241,34 @@ CanvasElement _canvasElementDeserialize(
   object.boundingTop = reader.readDoubleOrNull(offsets[3]);
   object.colorValue = reader.readLongOrNull(offsets[4]);
   object.documentId = reader.readLongOrNull(offsets[5]);
-  object.fontFamily = reader.readStringOrNull(offsets[6]);
-  object.fontSize = reader.readDoubleOrNull(offsets[7]);
+  object.fillColorValue = reader.readLongOrNull(offsets[6]);
+  object.fontFamily = reader.readStringOrNull(offsets[7]);
+  object.fontSize = reader.readDoubleOrNull(offsets[8]);
   object.id = id;
-  object.imagePath = reader.readStringOrNull(offsets[8]);
-  object.isBold = reader.readBoolOrNull(offsets[9]);
+  object.imagePath = reader.readStringOrNull(offsets[9]);
+  object.isBold = reader.readBoolOrNull(offsets[10]);
   object.points = reader.readObjectList<IsarPoint>(
-    offsets[10],
+    offsets[11],
     IsarPointSchema.deserialize,
     allOffsets,
     IsarPoint(),
   );
-  object.rotationAngle = reader.readDoubleOrNull(offsets[11]);
-  object.scale = reader.readDoubleOrNull(offsets[12]);
+  object.rotationAngle = reader.readDoubleOrNull(offsets[12]);
+  object.scale = reader.readDoubleOrNull(offsets[13]);
   object.shapeType =
-      _CanvasElementshapeTypeValueEnumMap[reader.readByteOrNull(offsets[13])] ??
+      _CanvasElementshapeTypeValueEnumMap[reader.readByteOrNull(offsets[14])] ??
       ShapeType.rectangle;
   object.strokeStyle =
       _CanvasElementstrokeStyleValueEnumMap[reader.readByteOrNull(
-        offsets[14],
+        offsets[15],
       )] ??
       StrokeStyle.solid;
-  object.strokeWidth = reader.readDoubleOrNull(offsets[15]);
-  object.textContent = reader.readStringOrNull(offsets[16]);
-  object.translationX = reader.readDoubleOrNull(offsets[17]);
-  object.translationY = reader.readDoubleOrNull(offsets[18]);
+  object.strokeWidth = reader.readDoubleOrNull(offsets[16]);
+  object.textContent = reader.readStringOrNull(offsets[17]);
+  object.translationX = reader.readDoubleOrNull(offsets[18]);
+  object.translationY = reader.readDoubleOrNull(offsets[19]);
   object.type =
-      _CanvasElementtypeValueEnumMap[reader.readByteOrNull(offsets[19])] ??
+      _CanvasElementtypeValueEnumMap[reader.readByteOrNull(offsets[20])] ??
       ElementType.freehand;
   return object;
 }
@@ -286,14 +293,16 @@ P _canvasElementDeserializeProp<P>(
     case 5:
       return (reader.readLongOrNull(offset)) as P;
     case 6:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 7:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 8:
       return (reader.readStringOrNull(offset)) as P;
+    case 8:
+      return (reader.readDoubleOrNull(offset)) as P;
     case 9:
-      return (reader.readBoolOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 10:
+      return (reader.readBoolOrNull(offset)) as P;
+    case 11:
       return (reader.readObjectList<IsarPoint>(
             offset,
             IsarPointSchema.deserialize,
@@ -301,31 +310,31 @@ P _canvasElementDeserializeProp<P>(
             IsarPoint(),
           ))
           as P;
-    case 11:
-      return (reader.readDoubleOrNull(offset)) as P;
     case 12:
       return (reader.readDoubleOrNull(offset)) as P;
     case 13:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 14:
       return (_CanvasElementshapeTypeValueEnumMap[reader.readByteOrNull(
                 offset,
               )] ??
               ShapeType.rectangle)
           as P;
-    case 14:
+    case 15:
       return (_CanvasElementstrokeStyleValueEnumMap[reader.readByteOrNull(
                 offset,
               )] ??
               StrokeStyle.solid)
           as P;
-    case 15:
-      return (reader.readDoubleOrNull(offset)) as P;
     case 16:
-      return (reader.readStringOrNull(offset)) as P;
-    case 17:
       return (reader.readDoubleOrNull(offset)) as P;
+    case 17:
+      return (reader.readStringOrNull(offset)) as P;
     case 18:
       return (reader.readDoubleOrNull(offset)) as P;
     case 19:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 20:
       return (_CanvasElementtypeValueEnumMap[reader.readByteOrNull(offset)] ??
               ElementType.freehand)
           as P;
@@ -1221,6 +1230,79 @@ extension CanvasElementQueryFilter
       return query.addFilterCondition(
         FilterCondition.between(
           property: r'documentId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fillColorValueIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'fillColorValue'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fillColorValueIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'fillColorValue'),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fillColorValueEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'fillColorValue', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fillColorValueGreaterThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'fillColorValue',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fillColorValueLessThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'fillColorValue',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterFilterCondition>
+  fillColorValueBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'fillColorValue',
           lower: lower,
           includeLower: includeLower,
           upper: upper,
@@ -2682,6 +2764,20 @@ extension CanvasElementQuerySortBy
     });
   }
 
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  sortByFillColorValue() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fillColorValue', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  sortByFillColorValueDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fillColorValue', Sort.desc);
+    });
+  }
+
   QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> sortByFontFamily() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fontFamily', Sort.asc);
@@ -2935,6 +3031,20 @@ extension CanvasElementQuerySortThenBy
     });
   }
 
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  thenByFillColorValue() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fillColorValue', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy>
+  thenByFillColorValueDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fillColorValue', Sort.desc);
+    });
+  }
+
   QueryBuilder<CanvasElement, CanvasElement, QAfterSortBy> thenByFontFamily() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fontFamily', Sort.asc);
@@ -3159,6 +3269,13 @@ extension CanvasElementQueryWhereDistinct
     });
   }
 
+  QueryBuilder<CanvasElement, CanvasElement, QDistinct>
+  distinctByFillColorValue() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'fillColorValue');
+    });
+  }
+
   QueryBuilder<CanvasElement, CanvasElement, QDistinct> distinctByFontFamily({
     bool caseSensitive = true,
   }) {
@@ -3293,6 +3410,12 @@ extension CanvasElementQueryProperty
   QueryBuilder<CanvasElement, int?, QQueryOperations> documentIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'documentId');
+    });
+  }
+
+  QueryBuilder<CanvasElement, int?, QQueryOperations> fillColorValueProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'fillColorValue');
     });
   }
 

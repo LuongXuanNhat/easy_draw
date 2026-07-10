@@ -50,6 +50,10 @@ class IsarDataSource {
     });
   }
 
+  Future<DrawingDocument?> getDocument(int id) async {
+    return await isar.drawingDocuments.get(id);
+  }
+
   /// Lấy toàn bộ nét vẽ của một bản vẽ cụ thể
   Future<List<CanvasElement>> getElementsForDocument(int documentId) async {
     return await isar.canvasElements
@@ -110,6 +114,7 @@ class IsarDataSource {
       // Gán ID cho các phần tử mới và lưu xuống
       for (var el in elements) {
         el.documentId = documentId;
+        el.id = Isar.autoIncrement;
       }
       await isar.canvasElements.putAll(elements);
 

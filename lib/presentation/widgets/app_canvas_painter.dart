@@ -49,7 +49,7 @@ Rect getElementBoundingBox(CanvasElement el) {
   }
 }
 
-void _applyTransformations(Canvas canvas, CanvasElement el) {
+void applyTransformations(Canvas canvas, CanvasElement el) {
   final rect = getElementBoundingBox(el);
   final cx = rect.center.dx;
   final cy = rect.center.dy;
@@ -70,7 +70,7 @@ void _applyTransformations(Canvas canvas, CanvasElement el) {
   }
 }
 
-void _paintTextHelper(
+void paintTextHelper(
   Canvas canvas,
   String text,
   Offset position,
@@ -142,7 +142,7 @@ class HistoryCanvasPainter extends CustomPainter {
       if (el == selectedElement) continue; // Skip to paint on ActiveCanvasPainter layer instead
 
       canvas.save();
-      _applyTransformations(canvas, el);
+      applyTransformations(canvas, el);
 
       if (el.type == ElementType.freehand) {
         final stroke = el.toDrawStroke();
@@ -150,16 +150,17 @@ class HistoryCanvasPainter extends CustomPainter {
           DrawPainter(strokes: [stroke]).paint(canvas, size);
         }
       } else if (el.type == ElementType.shape) {
-        _paintShapeHelper(
+        paintShapeHelper(
           canvas,
           el.shapeType,
           Offset(el.boundingLeft ?? 0, el.boundingTop ?? 0),
           Offset(el.boundingRight ?? 0, el.boundingBottom ?? 0),
           Color(el.colorValue ?? 0xFF000000),
           el.strokeWidth ?? 3.0,
+          fillColor: el.fillColorValue != null ? Color(el.fillColorValue!) : null,
         );
       } else if (el.type == ElementType.text) {
-        _paintTextHelper(
+        paintTextHelper(
           canvas,
           el.textContent ?? '',
           Offset(el.boundingLeft ?? 0, el.boundingTop ?? 0),
@@ -220,7 +221,7 @@ class ActiveCanvasPainter extends CustomPainter {
       DrawPainter(strokes: [activeStroke!]).paint(canvas, size);
     }
     if (shapeStart != null && shapeEnd != null) {
-      _paintShapeHelper(
+      paintShapeHelper(
         canvas,
         activeShapeType,
         shapeStart!,
@@ -232,7 +233,7 @@ class ActiveCanvasPainter extends CustomPainter {
     if (selectedElement != null) {
       // 1. Vẽ bản thân đối tượng đang được chỉnh sửa
       canvas.save();
-      _applyTransformations(canvas, selectedElement!);
+      applyTransformations(canvas, selectedElement!);
 
       if (selectedElement!.type == ElementType.freehand) {
         final stroke = selectedElement!.toDrawStroke();
@@ -240,16 +241,19 @@ class ActiveCanvasPainter extends CustomPainter {
           DrawPainter(strokes: [stroke]).paint(canvas, size);
         }
       } else if (selectedElement!.type == ElementType.shape) {
-        _paintShapeHelper(
+        paintShapeHelper(
           canvas,
           selectedElement!.shapeType,
           Offset(selectedElement!.boundingLeft ?? 0, selectedElement!.boundingTop ?? 0),
           Offset(selectedElement!.boundingRight ?? 0, selectedElement!.boundingBottom ?? 0),
           Color(selectedElement!.colorValue ?? 0xFF000000),
           selectedElement!.strokeWidth ?? 3.0,
+          fillColor: selectedElement!.fillColorValue != null
+              ? Color(selectedElement!.fillColorValue!)
+              : null,
         );
       } else if (selectedElement!.type == ElementType.text) {
-        _paintTextHelper(
+        paintTextHelper(
           canvas,
           selectedElement!.textContent ?? '',
           Offset(selectedElement!.boundingLeft ?? 0, selectedElement!.boundingTop ?? 0),
@@ -315,32 +319,27 @@ class ActiveCanvasPainter extends CustomPainter {
 }
 
 // --- HÀM HELPER VẼ HÌNH (Dùng chung cho cả 2 lớp) ---
-void _paintShapeHelper(
+void paintShapeHelper(
   Canvas canvas,
   ShapeType type,
   Offset start,
   Offset end,
   Color color,
-  double width,
-) {
-  final paint = Paint()
-    ..color = color
-    ..strokeWidth = width
-    ..style = PaintingStyle.stroke
-    ..strokeCap = StrokeCap.round
-    ..strokeJoin = StrokeJoin.round;
+  double width, {
+  Color? fillColor,
+}) {
+  void draw(Paint paint) {
+    final rect = Rect.fromPoints(start, end);
+    final w = rect.width;
+    final h = rect.height;
+    final L = rect.left;
+    final T = rect.top;
+    final R = rect.right;
+    final B = rect.bottom;
+    final cx = rect.center.dx;
+    final cy = rect.center.dy;
 
-  final rect = Rect.fromPoints(start, end);
-  final w = rect.width;
-  final h = rect.height;
-  final L = rect.left;
-  final T = rect.top;
-  final R = rect.right;
-  final B = rect.bottom;
-  final cx = rect.center.dx;
-  final cy = rect.center.dy;
-
-  switch (type) {
+    switch (type) {
     // === Basic Geometrical ===
     case ShapeType.rectangle:
       canvas.drawRect(rect, paint);
@@ -1023,4 +1022,29 @@ void _paintShapeHelper(
       canvas.drawRect(rect, paint);
       break;
   }
+  }
+
+  final isClosedShape = type != ShapeType.line &&
+      type != ShapeType.arrowLine &&
+      type != ShapeType.curve &&
+      type != ShapeType.freeform &&
+      type != ShapeType.scribble &&
+      type != ShapeType.calloutLine &&
+      type != ShapeType.arc &&
+      type != ShapeType.none;
+
+  if (fillColor != null && isClosedShape) {
+    final fillPaint = Paint()
+      ..color = fillColor
+      ..style = PaintingStyle.fill;
+    draw(fillPaint);
+  }
+
+  final strokePaint = Paint()
+    ..color = color
+    ..strokeWidth = width
+    ..style = PaintingStyle.stroke
+    ..strokeCap = StrokeCap.round
+    ..strokeJoin = StrokeJoin.round;
+  draw(strokePaint);
 }

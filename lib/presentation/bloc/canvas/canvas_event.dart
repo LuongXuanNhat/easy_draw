@@ -53,3 +53,19 @@ class ElementDeleted extends CanvasEvent {
   @override
   List<Object> get props => [index];
 }
+
+class DocumentElementsLoaded extends CanvasEvent {
+  final List<CanvasElement> elements;
+  const DocumentElementsLoaded(this.elements);
+
+  @override
+  List<Object> get props => [elements];
+}
+
+class ElementsReordered extends CanvasEvent {
+  final List<CanvasElement> elements;
+  const ElementsReordered(this.elements);
+
+  @override
+  List<Object> get props => [elements];
+}
