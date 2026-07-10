@@ -8,8 +8,13 @@ import '../bloc/canvas/canvas_event.dart';
 
 class ShapePickerMenu extends StatefulWidget {
   final VoidCallback onClose;
+  final bool isDark;
 
-  const ShapePickerMenu({super.key, required this.onClose});
+  const ShapePickerMenu({
+    super.key,
+    required this.onClose,
+    this.isDark = false,
+  });
 
   @override
   State<ShapePickerMenu> createState() => _ShapePickerMenuState();
@@ -95,6 +100,14 @@ class _ShapePickerMenuState extends State<ShapePickerMenu> {
     super.dispose();
   }
 
+  // ── Màu theo theme ─────────────────────────────────────────────────────────
+  Color get _bg => widget.isDark ? const Color(0xFF1E2235) : Colors.white;
+  Color get _icon => widget.isDark ? const Color(0xFFE2E8F0) : Colors.black87;
+  Color get _sectionLabel => widget.isDark ? const Color(0xFF64748B) : Colors.grey.shade600;
+  Color get _itemBorder => widget.isDark ? const Color(0xFF374151) : Colors.grey.shade300;
+  Color get _divider => widget.isDark ? const Color(0xFF2D3748) : Colors.grey.shade200;
+  Color get _scrollbar => widget.isDark ? const Color(0xFF4B5563) : Colors.grey.shade400;
+
   Widget _buildShapeGrid(
     List<ShapeType> shapes,
     CanvasBloc canvasBloc,
@@ -123,10 +136,10 @@ class _ShapePickerMenuState extends State<ShapePickerMenu> {
             height: itemWidth,
             decoration: BoxDecoration(
               color: isActive
-                  ? Colors.blue.withOpacity(0.15)
+                  ? Colors.blue.withValues(alpha: 0.18)
                   : Colors.transparent,
               border: Border.all(
-                color: isActive ? Colors.blue : Colors.grey.shade300,
+                color: isActive ? Colors.blue : _itemBorder,
                 width: isActive ? 2 : 1,
               ),
               borderRadius: BorderRadius.circular(8),
@@ -134,7 +147,7 @@ class _ShapePickerMenuState extends State<ShapePickerMenu> {
             child: Center(
               child: Icon(
                 shape.icon,
-                color: isActive ? Colors.blue : Colors.black87,
+                color: isActive ? Colors.blue : _icon,
                 size: 20,
               ),
             ),
@@ -160,7 +173,7 @@ class _ShapePickerMenuState extends State<ShapePickerMenu> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: Colors.grey.shade600,
+              color: _sectionLabel,
             ),
           ),
         ),
@@ -172,7 +185,7 @@ class _ShapePickerMenuState extends State<ShapePickerMenu> {
   Widget _buildGroupDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Divider(color: Colors.grey.shade200, height: 1, thickness: 1),
+      child: Divider(color: _divider, height: 1, thickness: 1),
     );
   }
 
@@ -186,7 +199,7 @@ class _ShapePickerMenuState extends State<ShapePickerMenu> {
           height: 380,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: _bg,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Scrollbar(

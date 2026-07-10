@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 
 class TextEntryPopover extends StatefulWidget {
   final Offset tapPosition; // Vị trí click trên màn hình (global)
+  final String initialText; // Nội dung text ban đầu (để chỉnh sửa)
   final ValueChanged<String> onSubmit;
   final VoidCallback onCancel;
+  final bool isDark;
 
   const TextEntryPopover({
     super.key,
     required this.tapPosition,
+    this.initialText = '',
     required this.onSubmit,
     required this.onCancel,
+    this.isDark = false,
   });
 
   @override
@@ -25,6 +29,14 @@ class _TextEntryPopoverState extends State<TextEntryPopover> {
   void initState() {
     super.initState();
     _createdAt = DateTime.now();
+    // Nếu có text ban đầu, load vào controller và chọn tất cả text
+    if (widget.initialText.isNotEmpty) {
+      _controller.text = widget.initialText;
+      _controller.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: widget.initialText.length,
+      );
+    }
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
         _focusNode.requestFocus();
@@ -46,19 +58,21 @@ class _TextEntryPopoverState extends State<TextEntryPopover> {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final visibleHeight = screenHeight - keyboardHeight;
 
-    const double bubbleWidth = 260.0;
-    const double bubbleHeight = 125.0; // Fixed total height for calculations
+    // ── Dark mode colors ──────────────────────────────────────────────────────
+    final bubbleBg = widget.isDark ? const Color(0xFF1E2235) : Colors.white;
+    final textColor = widget.isDark ? const Color(0xFFE2E8F0) : Colors.black87;
+    final hintColor = widget.isDark ? const Color(0xFF64748B) : Colors.grey;
+    final borderColor = widget.isDark ? const Color(0xFF374151) : Colors.grey.shade300;
 
-    // Căn giữa bubble theo trục ngang của điểm click
+    const double bubbleWidth = 260.0;
+    const double bubbleHeight = 125.0;
+
     double left = widget.tapPosition.dx - bubbleWidth / 2;
     left = left.clamp(12.0, screenWidth - bubbleWidth - 12.0);
 
-    // Tính toán tọa độ X của mũi tên tương đối với bong bóng (bubble)
     double arrowX = widget.tapPosition.dx - left;
     arrowX = arrowX.clamp(12.0, bubbleWidth - 12.0);
 
-    // Quyết định đặt trên hay dưới điểm chạm:
-    // Nếu điểm chạm nằm ở nửa dưới của vùng nhìn thấy (visibleHeight) thì đưa lên trên
     final bool placeAbove = widget.tapPosition.dy > (visibleHeight - 100.0);
 
     double top;
@@ -67,8 +81,6 @@ class _TextEntryPopoverState extends State<TextEntryPopover> {
     } else {
       top = widget.tapPosition.dy + 12.0;
     }
-
-    // Giới hạn trong vùng nhìn thấy
     top = top.clamp(12.0, visibleHeight - bubbleHeight - 12.0);
 
     return Stack(
@@ -92,18 +104,18 @@ class _TextEntryPopoverState extends State<TextEntryPopover> {
           child: Material(
             elevation: 8,
             borderRadius: BorderRadius.circular(12),
-            color: Colors.white,
+            color: bubbleBg,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (!placeAbove)
                   CustomPaint(
                     size: const Size(bubbleWidth, 10),
-                    painter: _ArrowUpPainter(arrowX: arrowX),
+                    painter: _ArrowUpPainter(arrowX: arrowX, color: bubbleBg),
                   ),
                 Container(
                   width: bubbleWidth,
-                  height: bubbleHeight - 10.0, // Trừ đi chiều cao mũi tên (10px)
+                  height: bubbleHeight - 10.0,
                   padding: const EdgeInsets.only(
                     left: 12,
                     right: 12,
@@ -118,10 +130,17 @@ class _TextEntryPopoverState extends State<TextEntryPopover> {
                         controller: _controller,
                         focusNode: _focusNode,
                         autofocus: true,
-                        decoration: const InputDecoration(
+                        style: TextStyle(color: textColor),
+                        decoration: InputDecoration(
                           hintText: 'Nhập nội dung văn bản...',
+                          hintStyle: TextStyle(color: hintColor),
                           isDense: true,
-                          border: UnderlineInputBorder(),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: borderColor),
+                          ),
+                          focusedBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
                         ),
                         onSubmitted: (val) {
                           final text = val.trim();
@@ -138,9 +157,9 @@ class _TextEntryPopoverState extends State<TextEntryPopover> {
                         children: [
                           TextButton(
                             onPressed: widget.onCancel,
-                            child: const Text(
+                            child: Text(
                               'Hủy',
-                              style: TextStyle(color: Colors.grey),
+                              style: TextStyle(color: hintColor),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -154,9 +173,7 @@ class _TextEntryPopoverState extends State<TextEntryPopover> {
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
                             ),
                             child: const Text('OK'),
                           ),
@@ -168,7 +185,7 @@ class _TextEntryPopoverState extends State<TextEntryPopover> {
                 if (placeAbove)
                   CustomPaint(
                     size: const Size(bubbleWidth, 10),
-                    painter: _ArrowDownPainter(arrowX: arrowX),
+                    painter: _ArrowDownPainter(arrowX: arrowX, color: bubbleBg),
                   ),
               ],
             ),
@@ -181,12 +198,13 @@ class _TextEntryPopoverState extends State<TextEntryPopover> {
 
 class _ArrowUpPainter extends CustomPainter {
   final double arrowX;
-  _ArrowUpPainter({required this.arrowX});
+  final Color color;
+  _ArrowUpPainter({required this.arrowX, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white
+      ..color = color
       ..style = PaintingStyle.fill;
     final path = Path();
     path.moveTo(arrowX - 8, size.height);
@@ -202,12 +220,13 @@ class _ArrowUpPainter extends CustomPainter {
 
 class _ArrowDownPainter extends CustomPainter {
   final double arrowX;
-  _ArrowDownPainter({required this.arrowX});
+  final Color color;
+  _ArrowDownPainter({required this.arrowX, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white
+      ..color = color
       ..style = PaintingStyle.fill;
     final path = Path();
     path.moveTo(arrowX - 8, 0);

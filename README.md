@@ -24,4 +24,10 @@ Tác dụng: Tự động sinh code cho file .g.dart
 
 Sử dụng `get_it` giúp bạn quản lý các instance của Class (như Datasource, Repository, BLoC) ở một nơi duy nhất, tránh việc phải khởi tạo lại nhiều lần hoặc truyền data rườm rà qua các widget
 
+flutter clear
+flutter pub get
+
+flutter build apk    # Android
+flutter build ipa    # iPhone
+
 

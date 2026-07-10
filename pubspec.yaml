@@ -55,6 +55,7 @@ dependencies:
   isar_community_flutter_libs: ^3.3.2
   intl: ^0.20.3
   gal: ^2.3.2
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:

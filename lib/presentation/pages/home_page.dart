@@ -5,7 +5,8 @@ import '../../data/datasources/isar_datasource.dart';
 import '../../data/models/drawing_document.dart';
 import '../../core/di/injection_container.dart';
 import 'drawing_page.dart';
-import 'package:intl/intl.dart'; // Để format ngày tháng
+import 'settings_page.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,7 +16,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Biến lưu Future để tránh gọi lại nhiều lần mỗi khi UI rebuild
   late Future<List<DrawingDocument>> _savedDocsFuture;
   late Future<List<DrawingDocument>> _draftDocsFuture;
 
@@ -58,6 +58,19 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
+            // Nút Cài đặt
+            IconButton(
+              icon: const Icon(Icons.settings_outlined),
+              tooltip: 'Cài đặt',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsPage(),
+                  ),
+                );
+              },
+            ),
           ],
         ),
         body: TabBarView(
@@ -69,7 +82,6 @@ class _HomePageState extends State<HomePage> {
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
           onPressed: () {
-            // Mở trang vẽ mới
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
