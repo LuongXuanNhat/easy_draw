@@ -106,7 +106,6 @@ class _ShapePickerMenuState extends State<ShapePickerMenu> {
   Color get _sectionLabel => widget.isDark ? const Color(0xFF64748B) : Colors.grey.shade600;
   Color get _itemBorder => widget.isDark ? const Color(0xFF374151) : Colors.grey.shade300;
   Color get _divider => widget.isDark ? const Color(0xFF2D3748) : Colors.grey.shade200;
-  Color get _scrollbar => widget.isDark ? const Color(0xFF4B5563) : Colors.grey.shade400;
 
   Widget _buildShapeGrid(
     List<ShapeType> shapes,
